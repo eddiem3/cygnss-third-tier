@@ -112,8 +112,7 @@
       read(*,*)height
       write(ialt,'(i3.3)')int(height)
       height=height*1e3
-      open(unit=15,file='Willoughby'//iele//'_'//ialt//'-w.bin2.bin',
-     1form='UNFORMATTED')      
+      open(unit=15,file='Willoughby'//iele//'_'//ialt//'-w.xml')      
       write(*,*)
       write(*,*)'Input the approximate latitude of the storm'
       read(*,*)lat
@@ -139,8 +138,21 @@
       convary(i)=0
       end do
 
-      write(15)windsteps,windstart,windinc,ixsteps,xinc,iysteps,yinc,
-     1lat,xstart,ystart 
+      write(15,*)'<modelData>'
+      write(15,*)'<configuration>'
+      write(15,*)'<windSteps>',windsteps, '</windSteps>'
+      write(15,*)'<windStart>',windstart, '</windStart>'
+      write(15,*)'<windInc>',windinc, '</windInc>'
+      write(15,*)'<xsteps>',ixsteps, '</xsteps>'
+      write(15,*)'<ysteps>',iysteps, '</ysteps>'
+      write(15,*)'<xInc>',xinc, '</xInc>'
+      write(15,*)'<yInc>',yinc, '</yInc>'
+      write(15,*)'<lat>',lat, '</lat>'
+      write(15,*)'<xStart>',xstart, '</xStart>'
+      write(15,*)'<yStart>',ystart, '</yStart>'
+      write(15,*)'</configuration>'
+      
+
       icount=0
 
 !$OMP  PARALLEL PRIVATE(xh,yh,i,j,k,wndspeed,convary,slop
@@ -255,8 +267,16 @@
      1stppchip,deadband,elevang,convary)
 
 40    continue 
-      write(15)i,j,k,wndspeed,xh*height,yh*height,A,lat,
-     1(convary(kl),kl=1,600)
+      
+      write(15,*)'<waveform>'
+      write(15,*)'<x>',i,'</x>'
+      write(15,*)'<y>',j,'</y>'
+      write(15,*)'<ws>',k,'</ws>'
+      write(15,*)'<windspeed>',wndspeed,'</windspeed>'
+      write(15,*)'<lat>',lat,'</lat>'
+      write(15,*)'<a>',A,'</a>'
+      write(15,*)'<data>',(convary(kl),kl=1,600),'</data>'
+      write(15,*)'</waveform>'
      
 
 * End of x loop
@@ -297,6 +317,7 @@
       write(10,*)kl,convary(kl)
       enddo
 
+      write(15,*)'</modelData>'
       
 1000  continue
       close(15)
