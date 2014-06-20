@@ -112,8 +112,7 @@
       read(*,*)height
       write(ialt,'(i3.3)')int(height)
       height=height*1e3
-      open(unit=15,file='Willoughby'//iele//'_'//ialt//'-w.bin2.bin',
-     1form='UNFORMATTED')      
+      open(unit=15,file='Willoughby'//iele//'_'//ialt//'-w.bin2.bin')      
       write(*,*)
       write(*,*)'Input the approximate latitude of the storm'
       read(*,*)lat
