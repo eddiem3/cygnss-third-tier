@@ -40,8 +40,13 @@ contains
     integer::it !iterator for do loop
     integer::size = 56661 !Expected dimension of waveforms array
     
+    integer::io
+
+    
     type(waveform), allocatable::waveforms(:) !An array to hold all waveforms
     allocate(waveforms(size))
+
+    io = 0
 
     !Open the model waveforms file
     write(*,*) "Loading configuation file..."
@@ -78,31 +83,74 @@ contains
        end if
     end do
 
+    close(1)
+
   end subroutine getWilloughby
+
+
+  !Load gps chip data
+  subroutine getNatureRunData()
+    integer::index !index of data point, it dummy data to read the file
+    real::xnr !latitude, x location
+    real::ynr !longitude, y location
+    real::data !signal data at that point
+
+    integer::io
+
+
+    real, allocatable::naturewave(:) !An array to hold the points of the reference waveform
+    allocate(naturewave(204))
+
+    io = 0
+
+    write(*,*) 'Opening nature run data'
+    !Open GPS Nature run file
+    open(2,file='5KmH960wn2PvDel56_530_m50.txt')
+    
+    write(*,*) "The current io is", io
+
+    do 
+       !Read in data
+       read(2,*, IOStat = io) index, xnr, ynr, data
+       
+       if(io > 0) then
+          write(*,*) 'Check input. There was an error parsing the file'
+          write(*,*) "Line number:", i
+          write(*,*) "Error:", io
+          exit
+       else if (io < 0) then
+          write(*,*) 'Finished reading the Willoughby configuration file'
+          exit
+       else
+          write(*,*) index, xnr, ynr, data
+       end if
+    end do
+    
+
+
+
+      ! yLminold=250000
+      ! yLmaxold=-250000
+
+      ! do kk=1,204
+
+      !    read(16,*,end=1010)idummy,xnr,ynr,data
+      !    naturewave(kk)=data
+
+ 
+  end subroutine getNatureRunData
+  
+
+
 end module retrevial
 
 
 program main
   use retrevial
-  !use FoX_DOM
-
   implicit none
 
   call getWilloughby()
-  ! !Open XML Model Waveforms XML file
-  ! type(Node), pointer :: doc, p
-
-  ! doc => parseFile("Willoughby90_056-w.xml", iostat=i)
-
-  !     if (i /= 0) then
-  !        print*,  "Could not open xml file"
-  !     end if
-
-      
-  ! p => item(getElementsByTagName(doc,"windSteps"),0)
-  ! call extractDataContent(p, windSteps)
-
-  !write(*,*) windSteps
+  call getNatureRunData()
 
 end program main
 
