@@ -42,6 +42,19 @@ contains
     
     integer::io
 
+    real::x 
+    real::y 
+    
+    real::lat
+    
+    real::windspeed !Wind speed at that point
+    real::a !Willougby A parameter
+    
+    real::startX
+    real::startY
+    
+    real::data(600)
+    
     
     type(waveform), allocatable::waveforms(:) !An array to hold all waveforms
     allocate(waveforms(size))
@@ -63,23 +76,31 @@ contains
     it = 1 !Iterator for do loop
 
     do
-       !Read the Willoughby config file
-       !Load each model waveform into a waveform type
-       !Place the waveform into the waveforms array
-       read(1,*, IOStat = io) waveforms(it)%x, waveforms(it)%y, waveforms(it)%windspeed, waveforms(it)%lat, waveforms(it)%a, waveforms(it)%startX, waveforms(it)%startY, waveforms(it)%data
-
        it  = it + 1
 
+       read(1,*, IOStat = io) x, y, windspeed, lat, a , startX, startY, data
+
        if(io > 0) then
-          write(*,*) 'Check input. There was an error parsing the file'
-          !write(*,*) i
-          write(*,*) io
+          write(*,*) 'Check input. There was an error parsing the file'          
+          write(*,*) 'The error number is:' ,io
           exit
        else if (io < 0) then
+      
           write(*,*) 'Finished reading the Willoughby configuration file'
           exit
        else
-          write(*,*) "Waveform", it
+          !Read the Willoughby config file
+          !Load each model waveform into a waveform type
+          !Place the waveform into the waveforms array
+          !write(*,*) "Waveform:", x, y, windspeed, lat, a, startX, startY, data
+          waveforms(it)%x = x
+          waveforms(it)%y = y
+          waveforms(it)%windspeed = windspeed
+          waveforms(it)%lat = lat
+          waveforms(it)%startX = startX
+          waveforms(it)%startY = startY
+          waveforms(it)%data = data
+          
        end if
     end do
 
@@ -126,7 +147,7 @@ contains
              exit
 
           else if (io < 0) then 
-             write(*,*) 'Finished reading the Willoughby configuration file'
+             write(*,*) 'Finished reading the nature run data configuration file'
              exit             
           else
 
@@ -136,15 +157,16 @@ contains
           end if
        end do
     end do
+  end subroutine getNatureRunData
+
+
+
+  subroutine crossCorrelate
+    !use cudafor
     
 
-    write(*,*) "The naturewave array contains", naturewave
-       
 
-
-
-
-  end subroutine getNatureRunData
+  end subroutine crossCorrelate
 
  
 
@@ -155,8 +177,9 @@ program main
   use retrevial
   implicit none
 
-  !call getWilloughby()
-  call getNatureRunData()
+  call getWilloughby()
+  !call getNatureRunData()
+  !call crossCorrelate()
 
 end program main
 
