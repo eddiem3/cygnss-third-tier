@@ -95,44 +95,52 @@ contains
     real::ynr !longitude, y location
     real::data !signal data at that point
 
+    integer::numWaves = 61 !total number of waveforms in the file
+    integer::numPoints = 204 !the number of data points a wave form contains
+
     integer::io !IOStat error variable
-    integer::point !interator for nature run file
     integer::i
+    integer::j
 
-    real, allocatable::naturewave(:) !An array to hold the points of the reference waveform
-    allocate(naturewave(204))
 
-    !io = 0 
+        
+    real, allocatable::naturewave(:,:) !An array to hold all waveforms
+    allocate(naturewave(numWaves,numPoints))
 
-    i = 0
+    !real, dimension(numWaves, numPoints)::naturewave !An array to hold the points of the reference waveform
+
+
     write(*,*) 'Opening nature run data'
     !Open GPS Nature run file
     open(2,file='5KmH960wn2PvDel56_530_m50.txt')
 
     !Read in data
-    do 
-       i = i + 1
-       
-       read(2,*, IOSTAT=io) index, xnr, ynr, data
+    do i=1,61
+       do j=1,204
 
-       if(io > 0) then
-          write(*,*) 'Check input. There was an error parsing the file'
-          write(*,*) "Error:", io
-          exit
+          read(2,*, IOSTAT=io) index, xnr, ynr, data
 
-       else if (io < 0) then 
-          write(*,*) 'Finished reading the Willoughby configuration file'
-          exit             
-       else
-          do point=1,204
+          if(io > 0) then
+             write(*,*) 'Check input. There was an error parsing the file'
+             write(*,*) "Error:", io
+             exit
+
+          else if (io < 0) then 
+             write(*,*) 'Finished reading the Willoughby configuration file'
+             exit             
+          else
 
              write(*,*) i, index, xnr, ynr, data          
-             naturewave(point) = data
-          end do
-       end if
-       write(*,*) "The naturewave array contains", naturewave
+             naturewave(i,j) = data
+             
+          end if
+       end do
     end do
     
+
+    write(*,*) "The naturewave array contains", naturewave
+       
+
 
 
 
