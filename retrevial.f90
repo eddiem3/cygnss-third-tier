@@ -35,7 +35,7 @@ contains
 
   !@param none
   !@return array of the configuration file
-  subroutine getWilloughby() 
+  function getWilloughby() result(waveforms)
     
     integer::it !iterator for do loop
     integer::size = 56661 !Expected dimension of waveforms array
@@ -106,11 +106,13 @@ contains
 
     close(1)
 
-  end subroutine getWilloughby
+  end function getWilloughby
 
   
   !Load gps chip data
-  subroutine getNatureRunData()
+  !@param None
+  !@return a 2d array of the Nature Run data
+  function getNatureRunData() result(naturewave)
     integer::index !index of data point, it dummy data to read the file
     real::xnr !latitude, x location
     real::ynr !longitude, y location
@@ -122,8 +124,6 @@ contains
     integer::io !IOStat error variable
     integer::i
     integer::j
-
-
         
     real, allocatable::naturewave(:,:) !An array to hold all waveforms
     allocate(naturewave(numWaves,numPoints))
@@ -157,8 +157,37 @@ contains
           end if
        end do
     end do
-  end subroutine getNatureRunData
+    
+  end function getNatureRunData
 
+  !Interpolate the nature run data 
+  !ex expand nature wave data from 204 points to 600
+  !@param naturwave - The nature run data
+  !@param expansion - The desired number of points
+  !@return interpolatedNatureWave - The interpolated array
+
+  function interpolate(naturewave, expansion) result(intNaturewave)
+    
+    real, allocatable, intent(in)::naturewave(:,:)
+    integer, intent(in)::expansion
+
+    integer::i
+    integer::j 
+    integer::k
+
+    real dims(2) = shape(naturewave) !Hold dimensions of naturewave array
+
+    real, allocatable::intNaturewave(:,:) !An array to hold all waveforms    
+    allocate(intNaturewave(dims(1),expansion))
+    
+    intNaturewave(1) = 0
+    
+    do i=1, dims(1)
+       do j=1, dims(2)
+          do k=1,3
+             intNaturewave
+
+  end function interpolate
 
 
   subroutine crossCorrelate
@@ -177,7 +206,8 @@ program main
   use retrevial
   implicit none
 
-  call getWilloughby()
+  type(waveform), allocatable::modelwaveforms(:)
+  modelwaveforms = getWilloughby()
   !call getNatureRunData()
   !call crossCorrelate()
 
