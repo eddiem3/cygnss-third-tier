@@ -1,6 +1,9 @@
 module retrevial   
+  
+  implicit none
+
   real::windStart
-  !real::windSteps
+  real::windSteps
   real::windInc
   real::xStart
   real::yStart
@@ -33,9 +36,14 @@ module retrevial
 
 contains 
 
+
   !@param none
   !@return array of the configuration file
-  function getWilloughby() result(waveforms)
+
+  function getWilloughby()
+    
+    type(waveform), allocatable, dimension(:)::getWilloughby
+    
     
     integer::it !iterator for do loop
     integer::size = 56661 !Expected dimension of waveforms array
@@ -56,8 +64,10 @@ contains
     real::data(600)
     
     
-    type(waveform), allocatable::waveforms(:) !An array to hold all waveforms
+    type(waveform), allocatable ::waveforms(:) !An array to hold all waveforms
+    type(waveform), allocatable ::waveformsOut(:) !An array to hold all waveforms
     allocate(waveforms(size))
+    allocate(waveformsOut(size))
 
     !io = 0
 
@@ -100,11 +110,13 @@ contains
           waveforms(it)%startX = startX
           waveforms(it)%startY = startY
           waveforms(it)%data = data
-          
+          !write(*,*) waveforms(it)%data
        end if
     end do
 
-    close(1)
+    getWilloughby = waveforms
+    
+    
 
   end function getWilloughby
 
@@ -113,6 +125,7 @@ contains
   !@param None
   !@return a 2d array of the Nature Run data
   function getNatureRunData() result(naturewave)
+
     integer::index !index of data point, it dummy data to read the file
     real::xnr !latitude, x location
     real::ynr !longitude, y location
@@ -121,12 +134,15 @@ contains
     integer::numWaves = 61 !total number of waveforms in the file
     integer::numPoints = 204 !the number of data points a wave form contains
 
+    
+
+
     integer::io !IOStat error variable
     integer::i
     integer::j
         
-    real, allocatable::naturewave(:,:) !An array to hold all waveforms
-    allocate(naturewave(numWaves,numPoints))
+    real, allocatable::naturewave(:) !An array to hold all waveforms
+    allocate(naturewave(numWaves * numPoints))
 
     !real, dimension(numWaves, numPoints)::naturewave !An array to hold the points of the reference waveform
 
@@ -135,59 +151,57 @@ contains
     !Open GPS Nature run file
     open(2,file='5KmH960wn2PvDel56_530_m50.txt')
 
+    i = 0
     !Read in data
-    do i=1,61
-       do j=1,204
+    do 
 
-          read(2,*, IOSTAT=io) index, xnr, ynr, data
+       read(2,*, IOSTAT=io) index, xnr, ynr, data
 
-          if(io > 0) then
-             write(*,*) 'Check input. There was an error parsing the file'
-             write(*,*) "Error:", io
-             exit
-
-          else if (io < 0) then 
-             write(*,*) 'Finished reading the nature run data configuration file'
-             exit             
-          else
-
-             write(*,*) i, index, xnr, ynr, data          
-             naturewave(i,j) = data
-             
-          end if
-       end do
+       if(io > 0) then
+          write(*,*) 'Check input. There was an error parsing the file'
+          write(*,*) "Error:", io
+          exit
+          
+       else if (io < 0) then 
+          write(*,*) 'Finished reading the nature run data configuration file'
+          exit             
+       else
+          
+          write(*,*) i, index, xnr, ynr, data          
+          naturewave(i) = data
+          i = i + 1
+          
+       end if
     end do
-    
   end function getNatureRunData
 
   !Interpolate the nature run data 
   !ex expand nature wave data from 204 points to 600
   !@param naturwave - The nature run data
-  !@param expansion - The desired number of points
   !@return interpolatedNatureWave - The interpolated array
 
-  function interpolate(naturewave, expansion) result(intNaturewave)
+  function interpolate(naturewave) result(intNaturewave)
     
-    real, allocatable, intent(in)::naturewave(:,:)
-    integer, intent(in)::expansion
-
+    real, allocatable, intent(in)::naturewave(:)
+    
     integer::i
     integer::j 
-    integer::k
 
-    real dims(2) = shape(naturewave) !Hold dimensions of naturewave array
-
-    real, allocatable::intNaturewave(:,:) !An array to hold all waveforms    
-    allocate(intNaturewave(dims(1),expansion))
+    real, allocatable::intNaturewave(:) !An array to hold all waveforms    
+    allocate(intNaturewave(size(naturewave)))
     
+
     intNaturewave(1) = 0
     
-    do i=1, dims(1)
-       do j=1, dims(2)
-          do k=1,3
-             intNaturewave
+    do i=1, 200
+       do j=1,3
+          intNaturewave((i-1)*3+j)=naturewave(i+1)*(float(j-1)/3)+ naturewave(i)*(1-float(j-1)/3)
+       end do
+    end do
+    
+    write(*,*) intNaturewave
 
-  end function interpolate
+   end function interpolate
 
 
   subroutine crossCorrelate
@@ -206,10 +220,24 @@ program main
   use retrevial
   implicit none
 
-  type(waveform), allocatable::modelwaveforms(:)
+
+  type(waveform), allocatable::modelwaveforms(:) 
+  !real modelwaveforms
+  real, allocatable::naturewave(:)
+  real, allocatable::interpolatedNatureRun(:)
+
+  
+  
+
   modelwaveforms = getWilloughby()
-  !call getNatureRunData()
-  !call crossCorrelate()
+  
+  write(*,*) modelwaveforms
+
+!  write(*,*) modelwaveforms
+  !naturewave = getNatureRunData()
+ ! interpolatedNatureRun = interpolate(naturewave)
+
+
 
 end program main
 
@@ -226,6 +254,6 @@ end program main
 
 
 
-
+ 
 
 
