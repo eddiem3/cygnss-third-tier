@@ -212,25 +212,9 @@ integer, parameter, public :: fp_kind = Double
            getWilloughby(it)%lat = lat
            getWilloughby(it)%startX = startX
            getWilloughby(it)%startY = startY
-           write(*,*) it
-           !write(*,*) data
            getWilloughby(it)%data = dcmplx(data)
-
-           ! do j=1, size(data)
-           !    !cnumber = cmplx(1,0)
-           !    !getWilloughby(it)%data(j) = dcmplx(0,0)
-           !    getWilloughby(it)%data(j) = j
-           !    !write(*,*) sizeof(getWilloughby(it)%data(j))
-           !    !write(*,*) sizeof(data(j))
-           ! end do
-
-           
-
-           !write(*,*) int(real(it)/real(size) * 100) ,"% complete" 
-        end if
-        
-        it  = it + 1
-
+        end if        
+        it  = it + 1  !update incrementer
      end do
 
      close(1)
@@ -243,7 +227,7 @@ integer, parameter, public :: fp_kind = Double
    !@return a 2d array of the Nature Run data
    function natureRunData() 
 
-     real, allocatable, dimension(:)::natureRunData !An array to hold all waveforms
+     complex(fp_kind), allocatable, dimension(:)::natureRunData !An array to hold all waveforms
 
      integer::index !index of data point, it dummy data to read the file
      real::xnr !latitude, x location
@@ -286,7 +270,7 @@ integer, parameter, public :: fp_kind = Double
         else
 
            !write(*,*) i, index, xnr, ynr, data          
-           natureRunData(i) = data
+           natureRunData(i) = dcmplx(data)
            i = i + 1
 
         end if
@@ -344,27 +328,6 @@ integer, parameter, public :: fp_kind = Double
      !end subroutine crossCorrelate
 
 
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
-   !!!!!!!!!
-   !Convert an array to double precision complex
-   !!!!
-   function convertComplex(normal)
-     real::normal(:)
-     real::number
-
-     integer::i !iterator
-      complex(fp_kind)::convertComplex(:) !output array
-
-     do i=1,size(normal)
-        number = dcmplx(normal(i))	
-        write(*,*) number
-        convertComplex(i) =  i
-     end do
-     
-   end function convertComplex
-
-
-
  end module retrevial
 
 
@@ -374,15 +337,9 @@ integer, parameter, public :: fp_kind = Double
    use precision
    implicit none
 
-   integer::i = 1
-   integer::j = 1
-   double complex::number 
-   !real,dimension(:),allocatable::normal
-   !complex(fp_kind)::normal(:) !output array
-
    type(waveform), allocatable::modelwaveforms(:) 
 
-   !real, allocatable, dimension(:)::naturewave
+   complex(fp_kind), allocatable, dimension(:)::naturewave
    !complex(fp_kind), allocatable, dimension(:)::naturewaveComplex
    !complex(fp_kind), dimension(:)::cnaturewave
    !real, allocatable::interpolatedNatureRun(:)
@@ -390,14 +347,14 @@ integer, parameter, public :: fp_kind = Double
    !allocate(normal(5))
    !allocate(naturewaveComplex(5))
 
-   modelwaveforms = getWilloughby()
-   write(*,*) modelwaveforms
+   !modelwaveforms = getWilloughby()
+   !write(*,*) modelwaveforms
 
-   !naturewave = natureRunData()
+   naturewave = natureRunData()
    !write(*,*) 'NATURE WAVE'
    !write(*,*) shape(naturewave)
 
-   !write(*,*) naturewave
+   write(*,*) naturewave
 
    !interpolatedNatureRun = interpolate(naturewave)
    !   dcmplx(interpolatedNatureRun)
@@ -405,22 +362,6 @@ integer, parameter, public :: fp_kind = Double
    !cnaturewave = convertComplex(naturewave)
 
 
-   !!!!!!!Complex play ground
-   ! write(*,*) 'About to write'
-
-   ! do i=1,5
-   !    normal(i) = i
-   !    write(*,*) normal(i)
-   ! end do
-
-
-   ! do j=1, 5
-   !    write(*,*) 'step 1'
-   !    number = cmplx(normal(j),0)
-   !    write(*,*) 'step 2'
-   !    naturewaveComplex(j) = number
-   !    write(*,*) naturewaveComplex(j)      
-   ! end do
  
 
   !write(*,*) interpolatedNatureRun
