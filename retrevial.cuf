@@ -1,5 +1,5 @@
 !
-! Define the INTERFACE to the NVIDIA CUFFT routines
+!  the INTERFACE to the NVIDIA CUFFT routines
 !
 
 module precision
@@ -227,7 +227,7 @@ integer, parameter, public :: fp_kind = Double
    !@return a 2d array of the Nature Run data
    function natureRunData() 
 
-     complex(fp_kind), allocatable, dimension(:)::natureRunData !An array to hold all waveforms
+     real(fp_kind), allocatable, dimension(:)::natureRunData !An array to hold all waveforms
 
      integer::index !index of data point, it dummy data to read the file
      real::xnr !latitude, x location
@@ -286,15 +286,14 @@ integer, parameter, public :: fp_kind = Double
    !@return interpolate - The interpolated array
    function interpolate(naturewave) 
 
-     real, allocatable, dimension(:)::interpolate !return array of the interpolated nature run dat
+     real, allocatable, dimension(:)::interpolate !return array of the interpolated nature run data
      real, allocatable, dimension(:), intent(in)::naturewave !input array of nature run data
 
 
      integer::i !iterator
      integer::j !iterator
 
-
-     allocate(interpolate(size(naturewave)))
+     allocate(interpolate(600))
 
 
      interpolate(1) = 0
@@ -304,11 +303,25 @@ integer, parameter, public :: fp_kind = Double
            interpolate((i-1)*3+j)=naturewave(i+1)*(float(j-1)/3)+ naturewave(i)*(1-float(j-1)/3)
         end do
      end do
-     write(*,*) interpolate
      write(*,*) "Finished interpolating the function"
 
    end function interpolate
 
+
+   
+
+   function realToComplex(realArray) 
+     integer::i !iterator
+     real, allocatable, dimension(:), intent(in)::realArray !input array of nature run data
+     complex(fp_kind)::realToComplex(600) !output array
+          
+
+     do i=1, size(realArray)
+       realToComplex(i) = dcmplx(realArray(i))
+     end do     
+
+   end function realToComplex
+   
 
 
 
@@ -338,33 +351,22 @@ integer, parameter, public :: fp_kind = Double
    implicit none
 
    type(waveform), allocatable::modelwaveforms(:) 
+   real, allocatable, dimension(:)::naturewave
+   real, allocatable::interpolatedNatureRun(:)
+   complex(fp_kind), allocatable::complexNatureRun(:)
+   
+   modelWaveforms = getWilloughby() !Load gps waveform data
+   naturewave = natureRunData()  !Load data for simulated storm
+   interpolatedNatureRun = interpolate(naturewave) !Interpolate the simulated nature run data into an array size of 600
+   complexNatureRun = realToComplex(interpolatedNatureRun)
+   
+   !Compute cross correlation
 
-   complex(fp_kind), allocatable, dimension(:)::naturewave
-   !complex(fp_kind), allocatable, dimension(:)::naturewaveComplex
-   !complex(fp_kind), dimension(:)::cnaturewave
-   !real, allocatable::interpolatedNatureRun(:)
+   
 
-   !allocate(normal(5))
-   !allocate(naturewaveComplex(5))
-
-   !modelwaveforms = getWilloughby()
-   !write(*,*) modelwaveforms
-
-   naturewave = natureRunData()
-   !write(*,*) 'NATURE WAVE'
-   !write(*,*) shape(naturewave)
-
-   write(*,*) naturewave
-
-   !interpolatedNatureRun = interpolate(naturewave)
-   !   dcmplx(interpolatedNatureRun)
-
-   !cnaturewave = convertComplex(naturewave)
+   !write(*,*) complexNatureRun
 
 
- 
-
-  !write(*,*) interpolatedNatureRun
 
 
   
