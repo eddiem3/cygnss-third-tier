@@ -1,4 +1,3 @@
-
 !
 ! Define the INTERFACE to the NVIDIA CUFFT routines
 !
@@ -132,7 +131,8 @@ integer, parameter, public :: fp_kind = Double
       real::startX
       real::startY
 
-      real::data(600)
+      !real::data(600)
+      complex(fp_kind)::data(600)
 
    end type waveform
 
@@ -144,11 +144,12 @@ integer, parameter, public :: fp_kind = Double
 
    function getWilloughby()
 
-     type(waveform), allocatable, dimension(:)::getWilloughby
+     type(waveform), allocatable, dimension(:), intent(out)::getWilloughby
 
 
      integer::it !iterator for do loop
-     integer::size = 56661 !Expected dimension of waveforms array
+     integer::j
+     integer::arraySize = 56661 !Expected dimension of waveforms array
 
      integer::io
 
@@ -163,11 +164,13 @@ integer, parameter, public :: fp_kind = Double
      real::startX
      real::startY
 
-     real::data(600)
+     !real::data(600)
+     complex(fp_kind)::data(600)
 
+     !complex(fp_kind)::cnumber !store a complex number
 
      !type(waveform), allocatable ::waveforms(:) !An array to hold all waveforms
-     allocate(getWilloughby(size))
+     allocate(getWilloughby(arraySize))
 
      !io = 0
 
@@ -186,7 +189,7 @@ integer, parameter, public :: fp_kind = Double
      it = 1 !Iterator for do loop
 
      do
-        it  = it + 1
+        
 
         read(1,*, IOStat = io) x, y, windspeed, lat, a , startX, startY, data
 
@@ -209,9 +212,25 @@ integer, parameter, public :: fp_kind = Double
            getWilloughby(it)%lat = lat
            getWilloughby(it)%startX = startX
            getWilloughby(it)%startY = startY
-           getWilloughby(it)%data = data
+           write(*,*) it
+           !write(*,*) data
+           getWilloughby(it)%data = dcmplx(data)
+
+           ! do j=1, size(data)
+           !    !cnumber = cmplx(1,0)
+           !    !getWilloughby(it)%data(j) = dcmplx(0,0)
+           !    getWilloughby(it)%data(j) = j
+           !    !write(*,*) sizeof(getWilloughby(it)%data(j))
+           !    !write(*,*) sizeof(data(j))
+           ! end do
+
+           
+
            !write(*,*) int(real(it)/real(size) * 100) ,"% complete" 
         end if
+        
+        it  = it + 1
+
      end do
 
      close(1)
@@ -356,14 +375,23 @@ integer, parameter, public :: fp_kind = Double
    implicit none
 
    integer::i = 1
+   integer::j = 1
+   double complex::number 
+   !real,dimension(:),allocatable::normal
+   !complex(fp_kind)::normal(:) !output array
 
-   !type(waveform), allocatable::modelwaveforms(:) 
-   real, allocatable, dimension(:)::naturewave
-   complex(fp_kind), dimension(:)::cnaturewave
+   type(waveform), allocatable::modelwaveforms(:) 
+
+   !real, allocatable, dimension(:)::naturewave
+   !complex(fp_kind), allocatable, dimension(:)::naturewaveComplex
+   !complex(fp_kind), dimension(:)::cnaturewave
    !real, allocatable::interpolatedNatureRun(:)
 
-   !modelwaveforms = getWilloughby()
-   !write(*,*) modelwaveforms
+   !allocate(normal(5))
+   !allocate(naturewaveComplex(5))
+
+   modelwaveforms = getWilloughby()
+   write(*,*) modelwaveforms
 
    !naturewave = natureRunData()
    !write(*,*) 'NATURE WAVE'
@@ -374,9 +402,25 @@ integer, parameter, public :: fp_kind = Double
    !interpolatedNatureRun = interpolate(naturewave)
    !   dcmplx(interpolatedNatureRun)
 
-   cnaturewave = convertComplex(naturewave)
-   
+   !cnaturewave = convertComplex(naturewave)
 
+
+   !!!!!!!Complex play ground
+   ! write(*,*) 'About to write'
+
+   ! do i=1,5
+   !    normal(i) = i
+   !    write(*,*) normal(i)
+   ! end do
+
+
+   ! do j=1, 5
+   !    write(*,*) 'step 1'
+   !    number = cmplx(normal(j),0)
+   !    write(*,*) 'step 2'
+   !    naturewaveComplex(j) = number
+   !    write(*,*) naturewaveComplex(j)      
+   ! end do
  
 
   !write(*,*) interpolatedNatureRun
