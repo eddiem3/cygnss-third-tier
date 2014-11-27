@@ -293,7 +293,7 @@ integer, parameter, public :: fp_kind = Double
      integer::i !iterator
      integer::j !iterator
 
-     allocate(interpolate(600))
+     allocate(interpolate(size(naturewave)))
 
 
      interpolate(1) = 0
@@ -311,14 +311,25 @@ integer, parameter, public :: fp_kind = Double
    
 
    function realToComplex(realArray) 
-     integer::i !iterator
+     integer::m !iterator
+     integer::n !iterator
      real, allocatable, dimension(:), intent(in)::realArray !input array of nature run data
-     complex(fp_kind)::realToComplex(600) !output array
-          
+     !complex(fp_kind)::realToComplex(size(realArray)) !output array
+     complex(fp_kind), allocatable::realToComplex(:) !output array
+     complex(fp_kind)::outArray(size(realArray)) !output array
 
-     do i=1, size(realArray)
-       realToComplex(i) = dcmplx(realArray(i))
-     end do     
+     allocate(realToComplex(size(realArray)))
+          
+     do m=1,size(realArray)
+        realToComplex(m) = dcmplx(realArray(m))
+        !outArray(m) = dcmplx(realArray(m))
+     end do
+     write(*,*) realToComplex
+     write(*,*) m
+     !do n=1, size(outArray)
+     !   realArray(n) = outArray(n)
+    ! end do
+     !realToComplex = outArray
 
    end function realToComplex
    
@@ -331,14 +342,58 @@ integer, parameter, public :: fp_kind = Double
    !between willougby modelwaveforms and nature run hurricane data
    !param: real, dimension(:)::waveforms - an array for model waveform data
    !param: real, dimension(:)::natureRunData - an array of real hurricane data
-   !
+   !crosscorr(A,B) = IFFT[conj(FFT(A)).* FFT(B)]
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   !subroutine crossCorrelate(waveforms, natureRunData)
-    !   use cufft
+   ! function crossCorrelate(waveforms, natureRunData)
+   !   use cufft
+     
+   !   integer::waveformSize = 600
+   !   integer::i !iterator
+   !   integer::j !iterator
+   !   integer::k !iterator
+
+   !   complex(fp_kind)::waveform(600) !The current waveform
+   !   complex(fp_kind)::natureRunWaveform(600) !The current nature run waveform
+     
+   !   integer::plan
+     
+
+
+   !   type(waveform), allocatable, dimension(:), intent(in)::waveforms !input array of nature run data
+   !   complex(fp_kind), allocatable, dimension(:), intent(in)::natureRunData
+
+   !   do i=1, size(waveforms)
+   !      waveform = waveforms(i)%data
+   !      do j=1, size(natureWaveform)
+   !         do k=1, waveformSize
+   !         natureRunWaveform(k) = natureRunData(j * k)
+   !      end do
+        
+   !   end do
+
+
+     
+
+
+   !   !Compute the complex conjugate of the FFT of the waveform
+
+     
+
+     
+
+   ! end function crossCorrelate
+
+   ! function combine(natureRunData)
+   !   complex(fp_kind), allocatable, intent(in)::natureRunData
+   !   type(waveform), allocatable::combine
+
+     
+     
 
 
 
-     !end subroutine crossCorrelate
+   ! end function combine
+
 
 
  end module retrevial
@@ -358,7 +413,17 @@ integer, parameter, public :: fp_kind = Double
    modelWaveforms = getWilloughby() !Load gps waveform data
    naturewave = natureRunData()  !Load data for simulated storm
    interpolatedNatureRun = interpolate(naturewave) !Interpolate the simulated nature run data into an array size of 600
+
+
+   !write(*,*) interpolatedNatureRun 
+   !write(*,*) "The size is", size(interpolatedNatureRun)
    complexNatureRun = realToComplex(interpolatedNatureRun)
+
+   !write(*,*) complexNatureRun
+
+
+
+   !write(*,*) size(complexNatureRun)
    
    !Compute cross correlation
 
