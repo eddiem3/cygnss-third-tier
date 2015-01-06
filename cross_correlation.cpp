@@ -34,7 +34,7 @@ static array correlateSignals(array signal, array storm)
   fourierStorm.eval();
 
   //multiply the signals
-  array crossResult = fourierSignal * fourierStorm; 
+  array crossResult = ifft(fourierSignal * fourierStorm); 
 
   crossResult.eval();
   
@@ -52,15 +52,15 @@ int main(int argc, char ** argv)
     info();
 
 
-    timer start = timer::start();
+    //    timer start = timer::start();
 
-    for(int i=1; i < 600; i++)
-      {
+    //for(int i=1; i < 600; i++)
+    // {
 	array A = randu(1,600, f32);
 	array B = randu(1,600, f32);
 	correlateSignals(A,B);
-      }
-    std::cout << timer::stop(start) << std::endl;
+	//}
+	//std::cout << timer::stop(start) << std::endl;
     
 
 
