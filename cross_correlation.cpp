@@ -1,7 +1,12 @@
-#include <arrayfire.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
+
+//Array Fire Includes
+#include <arrayfire.h>
+#include <af/util.h>
+
 using namespace af;
 
 
@@ -29,12 +34,11 @@ static array correlateSignals(array signal, array storm)
   fourierStorm.eval();
 
   //multiply the signals
-  array crossResult = dot(fourierSignal, fourierStorm); 
+  array crossResult = fourierSignal * fourierStorm; 
 
   crossResult.eval();
-
-
-  //  print(crossResult);
+  
+  print ("crossResult", crossResult);
   return crossResult;
 }
 
@@ -48,10 +52,18 @@ int main(int argc, char ** argv)
     info();
 
 
-    array A = randu(1,600, c64);
-    array B = randu(1,600, c64);
+    timer start = timer::start();
 
-    correlateSignals(A,B);
+    for(int i=1; i < 600; i++)
+      {
+	array A = randu(1,600, f32);
+	array B = randu(1,600, f32);
+	correlateSignals(A,B);
+      }
+    std::cout << timer::stop(start) << std::endl;
+    
+
+
 
         
   } catch (af::exception& e) {
