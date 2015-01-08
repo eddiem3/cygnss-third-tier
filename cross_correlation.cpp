@@ -34,17 +34,21 @@ static array correlateSignals(array signal, array storm)
   fourierSignal.eval();
   fourierStorm.eval();
 
-  //multiply the signals
-  array crossResult = ifft(fourierSignal * fourierStorm); 
+  
+  //magnitude 
+  //sum and multiply signals
+  array numerator = conjg(sum(fourierSignal * fourierStorm)) * sum(fourierSignal * fourierStorm);
 
-  crossResult.eval();
+  array denominator = sum(conjg(fourierSignal) * fourierSignal) * sum(conjg(fourierStorm) * fourierStorm);
 
-  array r = sum(crossResult);
-  r.eval();
+  array result = numerator/denominator;
 
-  print("r", r);
-  //print ("sum", r.dims());
-  return crossResult;
+  print("final", result);
+
+    
+  return result;
+
+
 }
 
 int main(int argc, char ** argv)
@@ -63,7 +67,7 @@ int main(int argc, char ** argv)
     // {
 	array A = randu(600,1, f32);
 	array B = randu(600,1, f32);
-	correlateSignals(A,B);
+	correlateSignals(A,A);
 	//}
 	//std::cout << timer::stop(start) << std::endl;
             
