@@ -15,7 +15,6 @@ using namespace af;
    @param signal - The waveform database array
    @param storm - The real storm array 
 */
-
 static array correlateSignals(array signal, array storm)
 {
 
@@ -24,6 +23,8 @@ static array correlateSignals(array signal, array storm)
 
   //compute the fft of the signal in the waveform database
   fourierSignal = fft(signal);  
+
+  //print("fdmims", fourierSignal.dims());
 
   //compute the complex conjugate of the fft of the storm 
   fourierStorm = conjg(fft(storm));
@@ -37,8 +38,12 @@ static array correlateSignals(array signal, array storm)
   array crossResult = ifft(fourierSignal * fourierStorm); 
 
   crossResult.eval();
-  
-  print ("crossResult", crossResult);
+
+  array r = sum(crossResult);
+  r.eval();
+
+  print("r", r);
+  //print ("sum", r.dims());
   return crossResult;
 }
 
@@ -56,16 +61,12 @@ int main(int argc, char ** argv)
 
     //for(int i=1; i < 600; i++)
     // {
-	array A = randu(1,600, f32);
-	array B = randu(1,600, f32);
+	array A = randu(600,1, f32);
+	array B = randu(600,1, f32);
 	correlateSignals(A,B);
 	//}
 	//std::cout << timer::stop(start) << std::endl;
-    
-
-
-
-        
+            
   } catch (af::exception& e) {
     fprintf(stderr, "%s\n", e.what());
   }
