@@ -37,6 +37,7 @@ static array correlateSignals(array signal, array storm)
   
   //magnitude 
   //sum and multiply signals
+
   array numerator = conjg(sum(fourierSignal * fourierStorm)) * sum(fourierSignal * fourierStorm);
 
   array denominator = sum(conjg(fourierSignal) * fourierSignal) * sum(conjg(fourierStorm) * fourierStorm);
@@ -44,7 +45,7 @@ static array correlateSignals(array signal, array storm)
   array result = numerator/denominator;
 
   print("final", result);
-
+    
     
   return result;
 
@@ -65,9 +66,9 @@ int main(int argc, char ** argv)
 
     //for(int i=1; i < 600; i++)
     // {
-	array A = randu(600,1, f32);
-	array B = randu(600,1, f32);
-	correlateSignals(A,A);
+    array A = randu(600,1, f32);
+    array B = randu(600,1, f32);
+    correlateSignals(A,A);
 	//}
 	//std::cout << timer::stop(start) << std::endl;
             
