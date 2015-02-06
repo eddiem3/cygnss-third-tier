@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iterator>
 #include <stdio.h>
+#include <ctime>
 
 //Array Fire Includes
 #include <arrayfire.h>
@@ -12,27 +13,45 @@
 
 using namespace af;
 
+struct waveform
+{
+  double x;
+  double y;
+  double lat;
+  
+  double windspeed;
+  double a;
+
+  double startX;
+  double startY;
+  
+  double data[600];
+};
+
+
+waveform *getWilloughby();
+
+
 
 /* A function to compute the cross correlation of two signals.
    Useful for finding the correlation of a waveform and a storm signal
    @param signal - The waveform database array
    @param storm - The real storm array 
 */
-static array correlateSignals(float signalArray[], float stormArray[])
+static array correlateSignals(array signal, array storm)
 {
 
 
-  //Convert the storm signals into Array Fire array type
-  array fourierSignal(600,1,signalArray);
-  array fourierStorm(600,1,stormArray);
- 
+  array fourierSignal;
+  array fourierStorm;
+
   //compute the fft of the signal in the waveform database
-  fourierSignal = fft(fourierSignal);  
+  fourierSignal = fft(signal);  
 
   //print("fdmims", fourierSignal.dims());
 
   //compute the complex conjugate of the fft of the storm 
-  fourierStorm = conjg(fft(fourierStorm));
+  fourierStorm = conjg(fft(storm));
   
 
   //make sure that the variables associated with each operation are evaulated
@@ -58,128 +77,67 @@ static array correlateSignals(float signalArray[], float stormArray[])
 
 int main(int argc, char ** argv)
 {
-  //Read in Nature Run Data
-  std::cout << "Reading interpolated nature run data" << "\n";
-  std::ifstream nature("interpolatedNatureRun.txt");
+  // //Read in Nature Run Data
+  // std::cout << "Reading interpolated nature run data" << "\n";
+  // std::ifstream nature("interpolatedNatureRun.txt");
 
-  std::vector<array> nature_vectors;
+  // std::vector<array> nature_vectors;
 
-  long double n;
-  while(!nature.eof())
-    {
-      array nature_signal(600,1);
+  // long double n;
+  // while(!nature.eof())
+  //   {
+  //     array nature_signal(600,1);
 	
-      for(int i = 0; i < nature_signal.dims(0); i++)
-	{
-	  nature >> n;
-	  nature_signal(i) = n;	  
-	  //std::cout << n << "\n";
-	}
-      nature_vectors.push_back(nature_signal);
-    }
-
-  std::cout << nature_vectors.size() << "\n";
-
-  print("a",nature_vectors.at(1));
-
-
-  //  for(int i=0; i < nature_vectors.size(); i++){
-  //print("a",nature_vectors[i]);
-  //  }
-
-
-
-  // for(std::vector<int>::const_iterator it = nature_vectors.begin(); 
-  //     it != nature_vectors.end(); ++it)
-  //   {
-  //     print("a",*it);
-  //   }
-
-
-
-  
-
-  //Convert std::vectors into arrays
-  //Note: The willoughby data is VERY LARGE
-  //Allocate on the heap instead of the stack or you
-  //will get a segmentation fault
-  //std::cout << "Converting will to an array" << "\n";
-  //float *willoughby = (float *)malloc(33996600 * sizeof(float));
-  //std::copy(will.begin(), will.end(), willoughby);
-  
-  //std::cout << "Converting nature to an array" << "\n";
-  //float natureRun[12444];
-  //std::copy(bob.begin(), bob.end(),natureRun);
-
-  
-  
-  
-
-
-  
- 
-
-
-
-
-  // std::cout << "Splitting big willougby array into subarrays" << "\n";
-  // for(int i =0; i < 33996600; i++)
-  //   {
-  //     float data[600];
-
-  //     for(int j = 0; j < 600; j++)
+  //     for(int i = 0; i < nature_signal.dims(0); i++)
   // 	{
-  // 	  data[j] = willoughby[i + 600 * j];
-  // 	}	   
-  //     array data_array(600,1,data);
-  //     willougbyModels.push_back(data_array);      
-  //   }
-
-  // std::cout << "splitting up nature array" << "\n";
-  // for(int i=0; i < 12444; i++)
-  //   {
-  //     float data[600];
-
-  //     for(int j=0; j < 600; j++)
-  // 	{
-  // 	  data[j] = natureRun[i + 600 * j];
+  // 	  nature >> n;
+  // 	  nature_signal(i) = n;	  
+  // 	  //std::cout << n << "\n";
   // 	}
-
-  //     array data_array(600,1,data);
-  //     natureRunData.push_back(data_array);
-
+  //     nature_vectors.push_back(nature_signal);
   //   }
- 
 
-  
-  // for (int i=0; i<natureRunData.size(); i++) 
+  // std::cout << nature_vectors.size() << "\n";
+
+  // print("a",nature_vectors.at(1));
+
+
+  //   //Read in Model Run Data
+  // std::cout << "Reading interpolated model run data" << "\n";
+  // std::ifstream model("modelwaveform.txt");
+
+  // std::vector<array> model_vectors;
+
+  // array model_signal(600,1);
+  // long double o;
+  // double duration;
+
+  // std::clock_t start;
+
+  // start = std::clock();
+  // while(!model.eof())
   //   {
-  //     print("a",natureRunData[i]);
-  //   } 
+	
+  //     for(int i = 0; i < model_signal.dims(0); i++)
+  // 	{
+  // 	  model >> o;
+  // 	  model_signal(i) = o;	  
+  // 	  //std::cout << n << "\n";
+  // 	}
+  //     model_vectors.push_back(model_signal);
+  //   }
+  // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
 
-	  
-  //Loop through each array in the storm vector 
-  //Multiply it with each of the willougby
-  //  for(auto &i : natureRunData)
-  //{
-  //  i * i;
-  //}
-  
+  // //std::cout << model_vectors.size() << "\n";
 
+  // // print("a",model_vectors.at(1));
 
+  // std::cout<<"Subarrays:  "<< duration <<'\n';
 
-
-
-
-  //DON'T DELETE
-  //print to std out
-  // std::cout << "numbers read in:\n";
-  // std::copy(bob.begin(), bob.end(), 
-  //           std::ostream_iterator<float>(std::cout, " "));
-  // std::cout << std::endl;
+  //std::cout << model_vectors.size() << "\n";
 
 
-  //
+  getWilloughby();
 
 
 
@@ -190,23 +148,19 @@ int main(int argc, char ** argv)
   //   deviceset(device);
   //   info();
     
-  //   float signalA[600];
-  //   float signalB[600];
-
-  //   for(int i = 0; i < 600; i++)
+  //   timer::start();
+  //   for(int i=0; i < nature_vectors.size(); i++)
   //     {
-  // 	signalA[i] = i;
-  // 	signalB[i] = i;
+  // 	for(int j=0; j < 55661; j++)
+  // 	  {
+  // 	    correlateSignals(nature_vectors[i], model_vectors[j]);
+  // 	  }
   //     }
+  //   timer::stop();
 
-  //   // A = randu(600,1, f32);
-  //   //array B = randu(600,1, f32);
-  //   correlateSignals(signalA,signalB);
     
-  // }             catch (af::exception& e) {
+  // } catch (af::exception& e) {
   //   fprintf(stderr, "%s\n", e.what());
-  // }
-
-  //  free(willoughby);
+  // }  
   return 0;
 }
