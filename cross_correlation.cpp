@@ -13,24 +13,20 @@
 
 using namespace af;
 
-struct waveform
-{
-  double x;
-  double y;
-  double lat;
+// struct waveform
+// {
+//   double x;
+//   double y;
+//   double lat;
   
-  double windspeed;
-  double a;
+//   double windspeed;
+//   double a;
 
-  double startX;
-  double startY;
+//   double startX;
+//   double startY;
   
-  double data[600];
-};
-
-
-waveform *getWilloughby();
-
+//   double data[600];
+// };
 
 
 /* A function to compute the cross correlation of two signals.
@@ -38,45 +34,52 @@ waveform *getWilloughby();
    @param signal - The waveform database array
    @param storm - The real storm array 
 */
-static array correlateSignals(array signal, array storm)
+extern "C" void correlateSignals(float fourierSignal[], array fourierStorm[])
 {
 
 
-  array fourierSignal;
-  array fourierStorm;
+  array A = randu(5,3);
+  print("A",A);
 
-  //compute the fft of the signal in the waveform database
-  fourierSignal = fft(signal);  
-
-  //print("fdmims", fourierSignal.dims());
-
-  //compute the complex conjugate of the fft of the storm 
-  fourierStorm = conjg(fft(storm));
+  //array signal(5,1,fourierSignal);
   
 
-  //make sure that the variables associated with each operation are evaulated
-  fourierSignal.eval();
-  fourierStorm.eval();
+  //array signal(600,1, fourierSignal);
+  // array storm(600,1, fourierStorm);
 
   
-  //magnitude 
-  //sum and multiply signals
-  array numerator = conjg(sum(fourierSignal * fourierStorm)) * sum(fourierSignal * fourierStorm);
+  // //compute the fft of the signal in the waveform database
+  // fourierSignal = fft(signal);  
 
-  array denominator = sum(conjg(fourierSignal) * fourierSignal) * sum(conjg(fourierStorm) * fourierStorm);
+  // //print("fdmims", fourierSignal.dims());
 
-  array result = numerator/denominator;
+  // //compute the complex conjugate of the fft of the storm 
+  // fourierStorm = conjg(fft(storm));
+  
 
-  print("final", result);
+  // //make sure that the variables associated with each operation are evaulated
+  // fourierSignal.eval();
+  // fourierStorm.eval();
+
+  
+  // //magnitude 
+  // //sum and multiply signals
+  // array numerator = conjg(sum(fourierSignal * fourierStorm)) * sum(fourierSignal * fourierStorm);
+
+  // array denominator = sum(conjg(fourierSignal) * fourierSignal) * sum(conjg(fourierStorm) * fourierStorm);
+
+  // array result = numerator/denominator;
+
+  // print("final", result);
     
     
-  return result;
+  // //return result;
 
-
+ 
 }
 
-int main(int argc, char ** argv)
-{
+//int main(int argc, char ** argv)
+//{
   // //Read in Nature Run Data
   // std::cout << "Reading interpolated nature run data" << "\n";
   // std::ifstream nature("interpolatedNatureRun.txt");
@@ -102,19 +105,19 @@ int main(int argc, char ** argv)
   // print("a",nature_vectors.at(1));
 
 
-  //   //Read in Model Run Data
+  //Read in Model Run Data
   // std::cout << "Reading interpolated model run data" << "\n";
-  // std::ifstream model("modelwaveform.txt");
+  // std::ifstream model("Willoughby56_530-w.bin2.bin", std::ios::binary | std::ios::in);
 
   // std::vector<array> model_vectors;
 
-  // array model_signal(600,1);
-  // long double o;
-  // double duration;
+  //  array model_signal(600,1);
+  //  long double o;
+  //  double duration;
 
-  // std::clock_t start;
+  //  std::clock_t start;
 
-  // start = std::clock();
+  // // start = std::clock();
   // while(!model.eof())
   //   {
 	
@@ -134,10 +137,10 @@ int main(int argc, char ** argv)
 
   // std::cout<<"Subarrays:  "<< duration <<'\n';
 
-  //std::cout << model_vectors.size() << "\n";
+  // std::cout << model_vectors.size() << "\n";
 
 
-  getWilloughby();
+  //  *getWilloughby_();
 
 
 
@@ -162,5 +165,5 @@ int main(int argc, char ** argv)
   // } catch (af::exception& e) {
   //   fprintf(stderr, "%s\n", e.what());
   // }  
-  return 0;
-}
+  //  return 0;
+  //}
