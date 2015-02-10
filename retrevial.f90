@@ -74,7 +74,7 @@ function getWilloughby()
  real::startX
  real::startY
 
- real::data(600)
+ real(c_double)::data(600)
 
 
  !type(waveform), allocatable ::waveforms(:) !An array to hold all waveforms
@@ -225,28 +225,29 @@ implicit none
 
 ! integer::i !iterator
 
-! type(waveform), allocatable::modelwaveforms(:) 
-! real, allocatable, dimension(:)::naturewave
-! real, allocatable::interpolatedNatureRun(:)
+ type(waveform), allocatable::modelwaveforms(:) 
+ real, allocatable, dimension(:)::naturewave
+ real(c_double), allocatable::interpolatedNatureRun(:)
 
-! modelWaveforms = getWilloughby() !Load gps waveform data
-! naturewave = natureRunData()  !Load data for simulated storm
-! interpolatedNatureRun = interpolate(naturewave) !Interpolate the simulated nature run data into an array size of 600
+ modelWaveforms = getWilloughby() !Load gps waveform data
+ naturewave = natureRunData()  !Load data for simulated storm
+ interpolatedNatureRun = interpolate(naturewave) !Interpolate the simulated nature run data into an array size of 600
 
-real(c_double),dimension(:), allocatable::a
-real(c_double), dimension(:),allocatable::b
+ ! real(c_double),dimension(:), allocatable::a
+ ! real(c_double), dimension(:),allocatable::b
 
-allocate(a(5))
-allocate(b(5))
+ ! allocate(a(5))
+ ! allocate(b(5))
 
-a = (/1,2,3,4,5/)
-b = (/1,2,3,4,5/)
+ ! a = (/1,2,3,4,5/)
+ ! b = (/1,2,3,4,5/)
 
 
+ write(*,*) modelwaveforms(1)%data(1)
 
-!Call match filter code
-call correlateSignals(a,b)
-
+ !Call match filter code
+ call correlateSignals(modelWaveforms(1)%data, modelWaveforms(1)%data)
+ 
 
 
 

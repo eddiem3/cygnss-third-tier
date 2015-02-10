@@ -19,7 +19,7 @@ retrevial:
 full:
 	g++ -c cross_correlation.cpp -L/usr/local/cuda/lib64 -lcudart -lcublas -lcufft -lafcuda -lnvvm -o cross_correlation.o -g $(NVVM_INC_PATH) $(NVVM_LIB_PATH) $(CUDA_INC_PATH) $(CUDA_LIB_PATH) 
 
-	gfortran cross_correlation.o retrevial.f90 -o matched_filter -lafcuda
+	gfortran cross_correlation.o retrevial.f90 -o matched_filter -lafcuda -lstdc++
 
 
 clean:
